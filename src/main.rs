@@ -9,12 +9,20 @@ fn main() {
         .split('\n')
         .filter(|x| !x.is_empty())
         .map(|x| x.parse::<u64>().unwrap())
+        .filter(|&x| x <= 2020)
         .collect();
 
-    for &num in numbers.iter() {
-        if numbers.contains(&(2020 - num)) {
-            println!("{}", num * (2020 - num));
-            break;
+    'outer: for (i, &num1) in numbers.iter().enumerate() {
+        let diff = 2020 - num1;
+
+        for (j, &num2) in numbers.iter().enumerate() {
+            if i == j {
+                continue;
+            }
+            if numbers.contains(&(diff - num2)) {
+                println!("{}", num1 * num2 * (diff - num2));
+                break 'outer;
+            }
         }
     }
 }
