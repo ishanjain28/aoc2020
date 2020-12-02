@@ -16,15 +16,16 @@ fn main() {
             let mut policy = policy.split_whitespace();
             let limits = policy.next().unwrap();
 
-            let mut limits = limits.split('-');
-            let lowerlimit = limits.next().unwrap().parse::<usize>().unwrap();
-            let upperlimit = limits.next().unwrap().parse::<usize>().unwrap();
+            let mut positions = limits.split('-');
+            let lpos = positions.next().unwrap().parse::<usize>().unwrap();
+            let rpos = positions.next().unwrap().parse::<usize>().unwrap();
 
-            (lowerlimit, upperlimit, chars, pwd)
+            (lpos, rpos, chars, pwd)
         })
-        .filter(|(lowerlimit, upperlimit, chars, pwd)| {
-            let count = &pwd.chars().filter(|x| x == chars).count();
-            count >= lowerlimit && count <= upperlimit
+        .filter(|&(lpos, rpos, c, pwd)| {
+            let pwd: Vec<char> = pwd.chars().collect();
+
+            (pwd[lpos - 1] == c || pwd[rpos - 1] == c) && (pwd[lpos - 1] != pwd[rpos - 1])
         })
         .count();
 
