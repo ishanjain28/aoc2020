@@ -1,33 +1,52 @@
 use std::io::{stdin, Read};
 
+#[derive(Debug, PartialEq, Eq)]
+enum GridType {
+    Open,
+    Tree,
+}
+
 fn main() {
     let mut input = String::new();
     stdin().read_to_string(&mut input).unwrap();
 
-    let count = input
+    let grid = input
         .split('\n')
         .filter(|x| !x.is_empty())
+        .into_iter()
         .map(|x| {
-            let mut x = x.split(':');
-            let policy = x.next().unwrap().trim();
-            let pwd = x.next().unwrap().trim();
-            let chars = policy.chars().last().unwrap();
-
-            let mut policy = policy.split_whitespace();
-            let limits = policy.next().unwrap();
-
-            let mut positions = limits.split('-');
-            let lpos = positions.next().unwrap().parse::<usize>().unwrap();
-            let rpos = positions.next().unwrap().parse::<usize>().unwrap();
-
-            (lpos, rpos, chars, pwd)
+            x.as_bytes()
+                .into_iter()
+                .map(|y| match y {
+                    b'#' => GridType::Tree,
+                    b'.' => GridType::Open,
+                    _ => unreachable!(),
+                })
+                .collect::<Vec<GridType>>()
         })
-        .filter(|&(lpos, rpos, c, pwd)| {
-            let pwd: Vec<char> = pwd.chars().collect();
+        .collect::<Vec<Vec<GridType>>>();
 
-            (pwd[lpos - 1] == c || pwd[rpos - 1] == c) && (pwd[lpos - 1] != pwd[rpos - 1])
-        })
-        .count();
+    let m = grid.len();
+    let n = grid[0].len();
+    println!("m = {} n = {}", m, n);
 
-    println!("{}", count);
+    let treecount = calc_trees(&grid, m, n, 3, 1);
+
+    println!("{}", treecount);
+}
+
+fn calc_trees(grid: &[Vec<GridType>], m: usize, n: usize, slope_x: usize, slope_y: usize) -> u32 {
+    let mut sx = 0;
+    let mut sy = 0;
+    let mut treecount = if grid[0][0] == GridType::Open { 0 } else { 1 };
+
+    while sx < m - 1 {
+        sy = (sy + slope_x) % n;
+        sx += slope_y;
+
+        if grid[sx][sy] == GridType::Tree {
+            treecount += 1;
+        }
+    }
+    return treecount;
 }
