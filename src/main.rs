@@ -30,9 +30,15 @@ fn main() {
     let n = grid[0].len();
     println!("m = {} n = {}", m, n);
 
-    let treecount = calc_trees(&grid, m, n, 3, 1);
+    let a = calc_trees(&grid, m, n, 3, 1);
+    let b = calc_trees(&grid, m, n, 1, 1);
+    let c = calc_trees(&grid, m, n, 5, 1);
+    let d = calc_trees(&grid, m, n, 7, 1);
+    let e = calc_trees(&grid, m, n, 1, 2);
 
-    println!("{}", treecount);
+    println!("{} {} {} {} {}", a, b, c, d, e);
+
+    println!("{}", a * b * c * d * e);
 }
 
 fn calc_trees(grid: &[Vec<GridType>], m: usize, n: usize, slope_x: usize, slope_y: usize) -> u32 {
