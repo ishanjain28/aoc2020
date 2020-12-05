@@ -1,58 +1,55 @@
+use std::collections::HashSet;
 use std::io::{stdin, Read};
 
 fn main() {
     let mut input = String::new();
     stdin().read_to_string(&mut input).unwrap();
 
-    let max_seat_id: usize = input
+    let filled_seats = input
         .split('\n')
         .filter(|x| !x.is_empty())
         .into_iter()
         .map(|seat| {
-            let seat = seat.as_bytes();
-            let (region, columns) = seat.split_at(7);
+            let mut region_lower = 0;
+            let mut region_upper = 127;
+            let mut col_lower = 0;
+            let mut col_upper = 7;
 
-            let mut lower = 0;
-            let mut upper = 127;
-
-            for r in region {
-                match r {
+            for s in seat.as_bytes() {
+                match s {
                     b'F' => {
-                        let mid = (lower + upper) / 2;
-                        upper = mid;
+                        let mid = (region_lower + region_upper) / 2;
+                        region_upper = mid;
                     }
                     b'B' => {
-                        let mid = (lower + upper + 1) / 2;
-                        lower = mid;
+                        let mid = (region_lower + region_upper + 1) / 2;
+                        region_lower = mid;
                     }
-                    _ => unreachable!(),
-                }
-            }
-
-            let region = lower;
-            lower = 0;
-            upper = 7;
-
-            for col in columns {
-                match col {
                     b'L' => {
-                        let mid = (lower + upper) / 2;
-                        upper = mid;
+                        let mid = (col_lower + col_upper) / 2;
+                        col_upper = mid;
                     }
                     b'R' => {
-                        let mid = (lower + upper + 1) / 2;
-                        lower = mid;
+                        let mid = (col_lower + col_upper + 1) / 2;
+                        col_lower = mid;
                     }
                     _ => unreachable!(),
                 }
             }
-
-            let col = lower;
+            let region = region_lower;
+            let col = col_lower;
 
             region * 8 + col
         })
-        .max()
-        .unwrap();
+        .collect::<HashSet<usize>>();
 
-    println!("{:?}", max_seat_id);
+    let min = *filled_seats.iter().min().unwrap();
+    let max = *filled_seats.iter().max().unwrap();
+
+    for i in min..max {
+        if !filled_seats.contains(&i) {
+            println!("seat = {}", i);
+            break;
+        }
+    }
 }
