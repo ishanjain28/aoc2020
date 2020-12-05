@@ -10,38 +10,20 @@ fn main() {
         .filter(|x| !x.is_empty())
         .into_iter()
         .map(|seat| {
-            let mut region_lower = 0;
-            let mut region_upper = 127;
-            let mut col_lower = 0;
-            let mut col_upper = 7;
+            let seat = seat.chars();
+            let mut region: u16 = 0;
 
-            for s in seat.as_bytes() {
-                match s {
-                    b'F' => {
-                        let mid = (region_lower + region_upper) / 2;
-                        region_upper = mid;
-                    }
-                    b'B' => {
-                        let mid = (region_lower + region_upper + 1) / 2;
-                        region_lower = mid;
-                    }
-                    b'L' => {
-                        let mid = (col_lower + col_upper) / 2;
-                        col_upper = mid;
-                    }
-                    b'R' => {
-                        let mid = (col_lower + col_upper + 1) / 2;
-                        col_lower = mid;
-                    }
-                    _ => unreachable!(),
-                }
+            for s in seat {
+                region <<= 1;
+                region |= match s {
+                    'B' | 'R' => 1,
+                    'F' | 'L' | _ => 0,
+                };
             }
-            let region = region_lower;
-            let col = col_lower;
 
-            region * 8 + col
+            (region >> 3) * 8 + (region & 0b111)
         })
-        .collect::<HashSet<usize>>();
+        .collect::<HashSet<u16>>();
 
     let min = *filled_seats.iter().min().unwrap();
     let max = *filled_seats.iter().max().unwrap();
