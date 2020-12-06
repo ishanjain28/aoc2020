@@ -9,15 +9,22 @@ fn main() {
         .filter(|x| !x.is_empty())
         .into_iter()
         .map(|set| {
-            let mut q = [false; 26];
+            let groups: Vec<&str> = set.split('\n').filter(|x| !x.is_empty()).collect();
+            let mut q = vec![vec![false; groups.len()]; 26];
 
-            set.chars()
-                .filter(|&x| char::is_alphabetic(x))
-                .for_each(|y| {
-                    q[(y as u8 - 97) as usize] = true;
+            for (i, group) in groups.into_iter().enumerate() {
+                group.chars().for_each(|x| {
+                    q[(x as u8 - 97) as usize][i] = true;
                 });
+            }
 
-            q.iter().fold(0, |a, &x| if x { a + 1 } else { a })
+            q.into_iter().filter(|x| !x.is_empty()).fold(0, |a, x| {
+                if x.into_iter().all(|y| y) {
+                    a + 1
+                } else {
+                    a
+                }
+            })
         })
         .sum::<i32>();
 
